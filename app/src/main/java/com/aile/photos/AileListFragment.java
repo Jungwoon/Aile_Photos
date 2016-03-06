@@ -101,8 +101,13 @@ public class AileListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Context context = v.getContext();
+                    // Info화면
                     Intent intent = new Intent(context, AileDetailActivity.class);
                     intent.putExtra(AileDetailActivity.EXTRA_NAME, holder.mBoundString);
+
+                    // 전체화면
+//                    Intent intent = new Intent(context, FullScreenViewActivity.class);
+//                    intent.putExtra("IMG_LIST", mValues.toArray(new String[mValues.size()]));
                     context.startActivity(intent);
                 }
             });

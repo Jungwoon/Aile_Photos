@@ -37,6 +37,8 @@
             android:name=".AddTravel">
         </activity>
 
+        <activity android:name=".FullScreenViewActivity"/>
+
     </application>
 
 </manifest>
