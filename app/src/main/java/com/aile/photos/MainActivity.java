@@ -31,9 +31,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     static final String TAG = "MainActivity";
@@ -55,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 만약 설치하고 맨 처음이라면 사진목록을 업데이트 시켜준다.
         if(!prefsDefault.getBoolean(Common.PREF_INIT, false)) {
-            updateImages();
+            LoadingImageProgress task = new LoadingImageProgress();
+            task.execute();
         }
 
         // 선언해주는 부분
@@ -81,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateImages();
-
                 // 로딩 다이얼로그 보여주는 부분
                 LoadingImageProgress task = new LoadingImageProgress();
                 task.execute();
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager, String destination) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Adapter adapter = new Adapter(getSupportFragmentManager());
+
         // adapter의 갱신을 위한 부분
 //        adapter.notifyDataSetChanged();
 
@@ -285,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 파라미터로 받는 두개의 날짜 사이의 일 수를 반환한다
     public int getInterval(String fromDate, String toDate) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
         int interval = 0;
 
         try {
@@ -298,67 +300,6 @@ public class MainActivity extends AppCompatActivity {
         return interval;
     }
 
-    /**
-     * 사진 라이브러리에 있는 사진들 날짜와 사진 경로를 가져오는 부분(Refresh 버튼)
-     */
-    public void updateImages() {
-        Log.e(TAG, "updateImages()");
-
-        //여기부터 데이터베이스에 넣어주는 부분
-        DBHelper mHelper = new DBHelper(this);
-
-        //SQLite에 쓸 수 있게 만듦
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-
-        // 갤러리에 접근한 커서를 가져온다
-        Cursor c = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
-
-
-        // 기존의 내용을 지우고 다시 갱신하는 부분
-        String deleteQuery = String.format("DELETE FROM %s", Common.IMAGE_TABLE);
-        db.execSQL(deleteQuery);
-
-        //만들어진 Query가 정상적인지 확인하는 부분
-        Log.e(TAG, "Query : " + deleteQuery);
-
-        try {
-            // 위에서 가져온 커서가 끝날때까지 loop를 돈다
-            if(c != null) {
-                Log.e("Load Start : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
-                while(c.moveToNext()) {
-                    long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                    Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-
-                    // uri를 통해서 실제 이미지의 경로를 가져와서 imgPath에 넣어준다
-                    String imgPath = getRealPathFromURI(uri);
-
-                    // 사진으로부터 정보를 가져오는 부분
-                    ExifInterface exif = new ExifInterface(imgPath);
-                    String date = getTagString(ExifInterface.TAG_DATETIME, exif);
-
-                    // 만약 날짜가 있으면 저장한다
-                    if(date != null) {
-                        // 2015:11:12 14:42:11 -> 2015-11-12 이렇게 바꾸는 소스
-                        date = date.substring(0, date.indexOf(" ")).replace(":", "-");
-
-                        String query = String.format("INSERT INTO %s (date, image_path) VALUES('%s', '%s');", Common.IMAGE_TABLE, date, imgPath);
-
-                        // 만들어진 Query가 정상적인지 확인하는 부분
-//                        Log.e(TAG, "insertQuery : " + query);
-
-                        //쿼리 실행
-                        db.execSQL(query);
-                    }
-                }
-                Log.e("Load End : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
-                //다 썼으니 닫아줌
-                mHelper.close();
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-    }
 
     // URI를 이용해서 실제 이미지의 경로를 가져오는 부분
     public String getRealPathFromURI(Uri contentUri) {
@@ -406,14 +347,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Progress Dialog 생성하는 부분
-    private class LoadingImageProgress extends AsyncTask<Void, Void, Void> {
+    private class LoadingImageProgress extends AsyncTask<Integer, Integer, Void> {
         ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
+        ArrayList<String> imgList = countSetDatePiectures();
 
         @Override
         // 작업시작, ProgressDialog 객체를 생성하고 시작합니다
         protected void onPreExecute() {
-            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            asyncDialog.setMessage("Loading...");
+            deleteTable(); // 기존의 테이블 내용을 지우고
+
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            asyncDialog.setMessage("Image Updating...");
+            asyncDialog.setMax(imgList.size()); // ProgressBar의 최대 숫자를 지정
 
             // show dialog
             asyncDialog.show();
@@ -422,11 +367,43 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         // 진행중, ProgressDialog 의 진행 정도를 표현해 줍니다.
-        protected Void doInBackground(Void... arg0) {
+        protected Void doInBackground(Integer... params) {
             try {
-                for(int i=0; i<=5; i++) {
-                    Thread.sleep(500);
+                //여기부터 데이터베이스에 넣어주는 부분
+                DBHelper mHelper = new DBHelper(MainActivity.this);
+
+                //SQLite에 쓸 수 있게 만듦
+                SQLiteDatabase db = mHelper.getWritableDatabase();
+
+                int cnt = 0;
+
+                Log.e("Load Start : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+
+                for(int i = 0; i < imgList.size(); i++) {
+                    // 사진으로부터 정보를 가져오는 부분
+                    ExifInterface exif = new ExifInterface(imgList.get(i));
+                    String date = getTagString(ExifInterface.TAG_DATETIME, exif);
+
+                    // 만약 날짜가 있으면 저장한다
+                    if(date != null) {
+                        // 2015:11:12 14:42:11 -> 2015-11-12 이렇게 바꾸는 소스
+                        date = date.substring(0, date.indexOf(" ")).replace(":", "-");
+                        String query = String.format("INSERT INTO %s (date, image_path) VALUES('%s', '%s');", Common.IMAGE_TABLE, date, imgList.get(i));
+                        Log.e("TEST", "query : " + query);
+
+                        cnt++;
+                        publishProgress(cnt);
+//                        Thread.sleep(1000); // 지워야 하는 부분
+
+                        //쿼리 실행
+                        db.execSQL(query);
+                    }
                 }
+
+                Log.e("Load End : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                //다 썼으니 닫아줌
+                mHelper.close();
+
             }
             catch(Exception e) {
                 e.printStackTrace();
@@ -436,10 +413,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        // doInBackground에 publishProgress 메서드로 넘겨준 값을 업데이트 함
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            asyncDialog.setProgress(values[0]);
+        }
+
+        @Override
         // 종료, ProgressDialog 종료 기능을 구현합니다.
         protected void onPostExecute(Void result) {
-            asyncDialog.dismiss();
             super.onPostExecute(result);
+            asyncDialog.dismiss();
+
+            Toast.makeText(MainActivity.this, "Loading Complete", Toast.LENGTH_SHORT).show();
         }
     } // End of AsyncTask
 
@@ -484,5 +470,60 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
         }
         catch(Exception e) {;}
+    }
+
+    private void deleteTable() {
+        //여기부터 데이터베이스에 넣어주는 부분
+        DBHelper mHelper = new DBHelper(MainActivity.this);
+
+        //SQLite에 쓸 수 있게 만듦
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+
+        // 기존의 내용을 지우고 다시 갱신하는 부분
+        String deleteQuery = String.format("DELETE FROM %s", Common.IMAGE_TABLE);
+        db.execSQL(deleteQuery);
+
+        //만들어진 Query가 정상적인지 확인하는 부분
+        Log.e(TAG, "Query : " + deleteQuery);
+
+        db.close();
+        mHelper.close();
+    }
+
+    private ArrayList<String> countSetDatePiectures() {
+        ArrayList<String> imgList = new ArrayList<>();
+
+        try {
+            // 갤러리에 접근한 커서를 가져온다
+            Cursor c = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+
+            // 위에서 가져온 커서가 끝날때까지 loop를 돈다
+            if(c != null) {
+                Log.e("Load Start : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                while(c.moveToNext()) {
+                    long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+                    // uri를 통해서 실제 이미지의 경로를 가져와서 imgPath에 넣어준다
+                    String imgPath = getRealPathFromURI(uri);
+
+                    // 사진으로부터 정보를 가져오는 부분
+                    ExifInterface exif = new ExifInterface(imgPath);
+                    String date = getTagString(ExifInterface.TAG_DATETIME, exif);
+
+                    // 만약 날짜가 있으면 저장한다
+                    if(date != null) {
+                        imgList.add(imgPath);
+                    }
+                }
+                Log.e("Load End : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                //다 썼으니 닫아줌
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return imgList;
     }
 }
