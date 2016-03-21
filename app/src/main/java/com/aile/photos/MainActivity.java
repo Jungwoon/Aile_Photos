@@ -22,7 +22,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +37,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    static final String TAG = "MainActivity";
+    private static final String LOG_TAG1 = "MainActivity";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
 
     DrawerLayout mDrawerLayout;
     Toolbar toolbar;
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor;
         String query = "select start_date, end_date from " + Common.TRAVEL_TABLE + " where dest = '" + destination + "'";
 
-        Log.e(TAG, "test query : " + query);
+        Logger.e(LOG_TAG1, LOG_TAG2, "test query : " + query);
 
         // 쿼리를 실행하고 거기에 대한 결과를 cursor에 넣음
         cursor = db.rawQuery(query, null);
@@ -163,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
             startDate = cursor.getString(0); // start_date
             endDate = cursor.getString(1); // end_date
 
-            Log.e(TAG, "db startDate : " + startDate);
-            Log.e(TAG, "db endDate : " + endDate);
+            Logger.e(LOG_TAG1, LOG_TAG2, "db startDate : " + startDate);
+            Logger.e(LOG_TAG1, LOG_TAG2, "db endDate : " + endDate);
 
             //커서를 다 썼으니 닫아주는 부분
             cursor.close();
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 // 아래에서 1일씩 증가시키기 때문에 애초에 하나 줄이고 시작
                 cal.add(Calendar.DATE, -1);
 
-                Log.e(TAG, "Interval : " + count);
+                Logger.e(LOG_TAG1, LOG_TAG2, "Interval : " + count);
 
                 for (int i=0; i<=count; i++) {
                     // 하루씩 증가
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // 2015-09-07 와 같은 형태로 만들어준다.
                     String date = cal.get(Calendar.YEAR) + "-" + month + "-" + day;
-                    Log.e(TAG, "test date : " + date);
+                    Logger.e(LOG_TAG1, LOG_TAG2, "test date : " + date);
 
                     /**
                      * Adapter에 날짜 하나씩 추가해주는 부분
@@ -225,10 +225,10 @@ public class MainActivity extends AppCompatActivity {
                     // 위에서 만든 fragment 객체에 Bundle 형태로 해당 날짜를 던져준다.
                     Bundle bundle = new Bundle();
 
-                    Log.e(TAG, "Bundle date : " + date);
+                    Logger.e(LOG_TAG1, LOG_TAG2, "Bundle date : " + date);
                     bundle.putString("date", date);
 
-                    Log.e(TAG, "Bundle num : " + i);
+                    Logger.e(LOG_TAG1, LOG_TAG2, "Bundle num : " + i);
                     bundle.putInt("num", i);
 
                     // AileListFragment의 객체를 생성한다.
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // adapter에 Fragment를 추가시켜준다.
                     adapter.addFragment(fragment, date);
-                    Log.e(TAG, i + "th date : " + date);
+                    Logger.e(LOG_TAG1, LOG_TAG2, i + "th date : " + date);
                 }
             } catch(Exception e){}
         }
@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
             cursor = db.rawQuery(query, null);
 
             while(cursor.moveToNext()) {
-                Log.e(TAG, "travel name : " + cursor.getString(0));
+                Logger.e(LOG_TAG1, LOG_TAG2, "travel name : " + cursor.getString(0));
                 mValues.add(cursor.getString(0));
             }
 
@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
 
                 int cnt = 0;
 
-                Log.e("Load Start : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                Logger.e(LOG_TAG1, LOG_TAG2, "Load Start : " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
 
                 for(int i = 0; i < imgList.size(); i++) {
                     // 사진으로부터 정보를 가져오는 부분
@@ -389,18 +389,17 @@ public class MainActivity extends AppCompatActivity {
                         // 2015:11:12 14:42:11 -> 2015-11-12 이렇게 바꾸는 소스
                         date = date.substring(0, date.indexOf(" ")).replace(":", "-");
                         String query = String.format("INSERT INTO %s (date, image_path) VALUES('%s', '%s');", Common.IMAGE_TABLE, date, imgList.get(i));
-                        Log.e("TEST", "query : " + query);
+                        Logger.e(LOG_TAG1, LOG_TAG2, "query : " + query);
 
                         cnt++;
                         publishProgress(cnt);
-//                        Thread.sleep(500); // 지워야 하는 부분
 
                         //쿼리 실행
                         db.execSQL(query);
                     }
                 }
 
-                Log.e("Load End : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                Logger.e(LOG_TAG1, LOG_TAG2, "Load End : " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
                 //다 썼으니 닫아줌
                 mHelper.close();
 
@@ -439,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
             Cursor cursor;
             String query = "select start_date, end_date from " + Common.TRAVEL_TABLE + " where dest = '" + dest + "'";
 
-            Log.e(TAG, "test query : " + query);
+            Logger.e(LOG_TAG1, LOG_TAG2, "test query : " + query);
 
             // 쿼리를 실행하고 거기에 대한 결과를 cursor에 넣음
             cursor = db.rawQuery(query, null);
@@ -454,8 +453,8 @@ public class MainActivity extends AppCompatActivity {
                 startDate = cursor.getString(0); // start_date
                 endDate = cursor.getString(1); // end_date
 
-                Log.e(TAG, "db startDate : " + startDate);
-                Log.e(TAG, "db endDate : " + endDate);
+                Logger.e(LOG_TAG1, LOG_TAG2, "db startDate : " + startDate);
+                Logger.e(LOG_TAG1, LOG_TAG2, "db endDate : " + endDate);
 
                 //커서를 다 썼으니 닫아주는 부분
                 cursor.close();
@@ -484,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
         db.execSQL(deleteQuery);
 
         //만들어진 Query가 정상적인지 확인하는 부분
-        Log.e(TAG, "Query : " + deleteQuery);
+        Logger.e(LOG_TAG1, LOG_TAG2, "Query : " + deleteQuery);
 
         db.close();
         mHelper.close();
@@ -499,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
 
             // 위에서 가져온 커서가 끝날때까지 loop를 돈다
             if(c != null) {
-                Log.e("Load Start : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                Logger.e(LOG_TAG1, LOG_TAG2, "Load Start : " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
                 while(c.moveToNext()) {
                     long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                     Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
@@ -516,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
                         imgList.add(imgPath);
                     }
                 }
-                Log.e("Load End : ", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
+                Logger.e(LOG_TAG1, LOG_TAG2, "Load End : " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTimeInMillis()));
                 //다 썼으니 닫아줌
             }
         }

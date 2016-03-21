@@ -18,6 +18,9 @@ import java.util.ArrayList;
  * Created by JW on 16. 2. 28..
  */
 public class FullScreenImageAdapter extends PagerAdapter {
+    private static final String LOG_TAG1 = "FullScreenImageAdapter";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
+
     private Activity _activity;
     private ArrayList<String> _imagePaths;
     private LayoutInflater inflater;

@@ -11,7 +11,9 @@ import java.util.List;
  * Created by JW on 15. 12. 9..
  */
 public class Adapter extends FragmentStatePagerAdapter {
-    static final String TAG = "Adapter";
+    private static final String LOG_TAG1 = "Adapter";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
+
     private final List<Fragment> mFragments = new ArrayList<>();
     private final List<String> mFragmentTitles = new ArrayList<>();
 

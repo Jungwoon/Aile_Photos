@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 
 public class LoadingActivity extends Activity {
+    private static final String LOG_TAG1 = "LoadingActivity";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

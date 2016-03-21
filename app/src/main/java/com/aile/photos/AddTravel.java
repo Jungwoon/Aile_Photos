@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +15,8 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.util.Calendar;
 
 public class AddTravel extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+    private static final String LOG_TAG1 = "AddTravel";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
 
     EditText mDestnation;
     TextView mDepartDate;
@@ -107,9 +108,9 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                 start_date = mDepartDate.getText().toString();
                 end_date = mArriveDate.getText().toString();
 
-                Log.e("dest", dest);
-                Log.e("start_date", start_date);
-                Log.e("end_date", end_date);
+                Logger.e(LOG_TAG1, LOG_TAG2, "dest : " + dest);
+                Logger.e(LOG_TAG1, LOG_TAG2, "start_date : " + start_date);
+                Logger.e(LOG_TAG1, LOG_TAG2, "end_date : " + end_date);
 
                 if(!dest.equals("") && !start_date.equals("") && !end_date.equals("")) {
                     // 새로운 여행 추가때의 로직
@@ -182,7 +183,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                     "VALUES('%s', '%s', '%s');", Common.TRAVEL_TABLE, dest, start_date, end_date);
 
             //만들어진 Query가 정상적인지 확인하는 부분
-            Log.d("addTravel", "Query : " + query);
+            Logger.d(LOG_TAG1, LOG_TAG2, "addTravel Query : " + query);
 
             //쿼리 실행
             db.execSQL(query);
@@ -204,7 +205,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                     Common.TRAVEL_TABLE, dest, start_date, end_date, editDest);
 
             //만들어진 Query가 정상적인지 확인하는 부분
-            Log.d("editTravel", "Query : " + query);
+            Logger.e(LOG_TAG1, LOG_TAG2, "editTravel Query : " + query);
 
             //쿼리 실행
             db.execSQL(query);
@@ -226,7 +227,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                     Common.TRAVEL_TABLE, editDest);
 
             //만들어진 Query가 정상적인지 확인하는 부분
-            Log.d("editTravel", "Query : " + query);
+            Logger.d(LOG_TAG1, LOG_TAG2, "editTravel Query : " + query);
 
             //쿼리 실행
             db.execSQL(query);

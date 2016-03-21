@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
 public class AileDetailActivity extends AppCompatActivity {
+    private static final String LOG_TAG1 = "AileDetailActivity";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
 
     public static final String EXTRA_NAME = "aile_name";
     String image_path;
@@ -28,7 +30,6 @@ public class AileDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-//        collapsingToolbar.setTitle(cheeseName);
         collapsingToolbar.setTitle("Aile");
 
         loadBackdrop();

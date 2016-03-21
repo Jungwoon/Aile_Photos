@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,14 +21,15 @@ import java.util.List;
 
 // 아래쪽에 리스트 보여주는 부분
 public class AileListFragment extends Fragment {
-    final static String TAG = "AileListFragment";
+    private static final String LOG_TAG1 = "AileListFragment";
+    private static final String LOG_TAG2 = Common.LOG_TAG_STRING;
 
     // 맨 처음 뷰를 생성하는 부분
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e(TAG, "onCreateView()");
+        Logger.e(LOG_TAG1, LOG_TAG2, "onCreateView()");
 
-        Log.e(TAG, "num : " + getArguments().getInt("num"));
-        Log.e(TAG, "date : " + getArguments().getString("date"));
+        Logger.e(LOG_TAG1, LOG_TAG2, "num : " + getArguments().getInt("num"));
+        Logger.e(LOG_TAG1, LOG_TAG2, "date : " + getArguments().getString("date"));
 
         RecyclerView rv = (RecyclerView) inflater.inflate(R.layout.fragment_aile_list, container, false);
         setupRecyclerView(rv);
@@ -42,7 +42,7 @@ public class AileListFragment extends Fragment {
     // Date를 받아서 해당 날짜에 해당하는 ArrayList를 받는다
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        Log.e(TAG, "getDate from Bundle : " + getArguments().getString("date"));
+        Logger.e(LOG_TAG1, LOG_TAG2, "getDate from Bundle : " + getArguments().getString("date"));
 
         /**
          * Bundle로 넣어준 date를 가져와서
@@ -77,7 +77,7 @@ public class AileListFragment extends Fragment {
         }
 
         public String getValueAt(int position) {
-            Log.e(TAG, "getValueAt : " + mValues.get(position));
+            Logger.e(LOG_TAG1, LOG_TAG2, "getValueAt : " + mValues.get(position));
             return mValues.get(position);
         }
 
@@ -106,7 +106,7 @@ public class AileListFragment extends Fragment {
 //                    Intent intent = new Intent(context, AileDetailActivity.class);
 //                    intent.putExtra(AileDetailActivity.EXTRA_NAME, holder.mBoundString);
 
-                    Log.e("TEST", "clicked img position : " + imgPosition);
+                    Logger.e(LOG_TAG1, LOG_TAG2, "clicked img position : " + imgPosition);
 
                     // 전체화면
                     Intent intent = new Intent(context, FullScreenViewActivity.class);
@@ -136,7 +136,7 @@ public class AileListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroy();
-        Log.e(TAG, "onDestroyView()");
+        Logger.e(LOG_TAG1, LOG_TAG2, "onDestroyView()");
     }
 
     // 여행시작날짜와 종료날짜를 보내면 거기에 해당하는 사진을 조회해서 넘기는 부분
@@ -145,7 +145,7 @@ public class AileListFragment extends Fragment {
         DBHelper mHelper = new DBHelper(getContext());
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
-        Log.e(TAG, "loadImages() date : " + date);
+        Logger.e(LOG_TAG1, LOG_TAG2, "loadImages() date : " + date);
         String query = String.format("SELECT image_path FROM %s WHERE date = '%s';", Common.IMAGE_TABLE, date);
 
         // 쿼리를 실행하고 거기에 대한 결과를 cursor에 넣음
@@ -154,7 +154,7 @@ public class AileListFragment extends Fragment {
         // 해당하는 걸 가져오는 부분
         while(cursor.moveToNext()) {
             list.add(cursor.getString(0));
-            Log.e(TAG, "cursor : " + cursor.getString(0));
+            Logger.e(LOG_TAG1, LOG_TAG2, "cursor : " + cursor.getString(0));
         }
 
         //다 썼으니 닫아줌

@@ -14,4 +14,6 @@ public class Common {
     public static final String PREF_INIT = "pref_init";
     public static final String PREF_LATEST = "pref_latest";
 
+    public static final String LOG_TAG_STRING = "Photos";
+
 }
