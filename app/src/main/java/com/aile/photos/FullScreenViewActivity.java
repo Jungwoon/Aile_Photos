@@ -27,6 +27,9 @@ public class FullScreenViewActivity extends Activity {
 
 		Intent i = getIntent();
         String[] img_date = i.getStringArrayExtra("IMG_LIST");
+        int img_position = i.getIntExtra("IMG_POSITION", 0);
+
+        Log.e("TEST", "fullScreen img_position : " + img_position);
 
         // for Test
         for(int j = 0; j < img_date.length; j++) {
@@ -39,7 +42,7 @@ public class FullScreenViewActivity extends Activity {
 
 		viewPager.setAdapter(adapter);
 
-		// displaying selected image first
-//		viewPager.setCurrentItem(position);
+		// 여기서 index를 넘기면 viewPager 의 instantiateItem()의 position으로 받음
+		viewPager.setCurrentItem(img_position);
 	}
 }

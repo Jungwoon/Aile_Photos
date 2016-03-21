@@ -93,6 +93,7 @@ public class AileListFragment extends Fragment {
         @Override
         // 각 이미지를 눌렀을때 넘어가는 부분
         public void onBindViewHolder(final ViewHolder holder, int position) {
+            final int imgPosition = position;
             holder.mBoundString = mValues.get(position);
 
             // 각 리스트 버튼을 눌렀을때 안쪽으로 넘어가는 부분
@@ -102,12 +103,15 @@ public class AileListFragment extends Fragment {
                 public void onClick(View v) {
                     Context context = v.getContext();
                     // Info화면
-                    Intent intent = new Intent(context, AileDetailActivity.class);
-                    intent.putExtra(AileDetailActivity.EXTRA_NAME, holder.mBoundString);
+//                    Intent intent = new Intent(context, AileDetailActivity.class);
+//                    intent.putExtra(AileDetailActivity.EXTRA_NAME, holder.mBoundString);
+
+                    Log.e("TEST", "clicked img position : " + imgPosition);
 
                     // 전체화면
-//                    Intent intent = new Intent(context, FullScreenViewActivity.class);
-//                    intent.putExtra("IMG_LIST", mValues.toArray(new String[mValues.size()]));
+                    Intent intent = new Intent(context, FullScreenViewActivity.class);
+                    intent.putExtra("IMG_LIST", mValues.toArray(new String[mValues.size()]));
+                    intent.putExtra("IMG_POSITION", imgPosition);
                     context.startActivity(intent);
                 }
             });

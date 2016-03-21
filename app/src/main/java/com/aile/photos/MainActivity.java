@@ -393,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
 
                         cnt++;
                         publishProgress(cnt);
-//                        Thread.sleep(1000); // 지워야 하는 부분
+//                        Thread.sleep(500); // 지워야 하는 부분
 
                         //쿼리 실행
                         db.execSQL(query);
