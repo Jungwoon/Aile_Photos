@@ -38,7 +38,6 @@ public class AileListFragment extends Fragment {
         return rv;
     }
 
-
     // Date를 받아서 해당 날짜에 해당하는 ArrayList를 받는다
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
@@ -96,25 +95,28 @@ public class AileListFragment extends Fragment {
             final int imgPosition = position;
             holder.mBoundString = mValues.get(position);
 
-            // 각 리스트 버튼을 눌렀을때 안쪽으로 넘어가는 부분
-            // 인텐트를 써서
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = v.getContext();
-                    // Info화면
+            // 사진이 없으면 클릭 할 수 없게끔
+            if(!mValues.get(0).equals("none")) {
+                // 각 리스트 버튼을 눌렀을때 안쪽으로 넘어가는 부분
+                // 인텐트를 써서
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = v.getContext();
+                        // Info화면
 //                    Intent intent = new Intent(context, AileDetailActivity.class);
 //                    intent.putExtra(AileDetailActivity.EXTRA_NAME, holder.mBoundString);
 
-                    Logger.e(LOG_TAG1, LOG_TAG2, "clicked img position : " + imgPosition);
+                        Logger.e(LOG_TAG1, LOG_TAG2, "clicked img position : " + imgPosition);
 
-                    // 전체화면
-                    Intent intent = new Intent(context, FullScreenViewActivity.class);
-                    intent.putExtra("IMG_LIST", mValues.toArray(new String[mValues.size()]));
-                    intent.putExtra("IMG_POSITION", imgPosition);
-                    context.startActivity(intent);
-                }
-            });
+                        // 전체화면
+                        Intent intent = new Intent(context, FullScreenViewActivity.class);
+                        intent.putExtra("IMG_LIST", mValues.toArray(new String[mValues.size()]));
+                        intent.putExtra("IMG_POSITION", imgPosition);
+                        context.startActivity(intent);
+                    }
+                });
+            }
 
             /**
              * 사진 이미지 넣어주는 부분
@@ -124,7 +126,14 @@ public class AileListFragment extends Fragment {
              * ex) Glide.with(this).load("http://goo.gl/gEgYUd").into(imageView);
              */
 
-            Glide.with(holder.mImageView.getContext()).load(mValues.get(position)).fitCenter().into(holder.mImageView);
+            // 해당 날짜에 사진이 있으면
+            if(!mValues.get(0).equals("none")) {
+                Glide.with(holder.mImageView.getContext()).load(mValues.get(position)).fitCenter().into(holder.mImageView);
+            }
+            // 해당 날짜에 사진이 없으면
+            else {
+                Glide.with(holder.mImageView.getContext()).load(R.drawable.no_image).fitCenter().into(holder.mImageView);
+            }
         }
 
         @Override
@@ -150,11 +159,20 @@ public class AileListFragment extends Fragment {
 
         // 쿼리를 실행하고 거기에 대한 결과를 cursor에 넣음
         Cursor cursor = db.rawQuery(query, null);
+        Logger.e(LOG_TAG1, LOG_TAG2, "Cursor.getCount() : " + cursor.getCount());
 
-        // 해당하는 걸 가져오는 부분
-        while(cursor.moveToNext()) {
-            list.add(cursor.getString(0));
-            Logger.e(LOG_TAG1, LOG_TAG2, "cursor : " + cursor.getString(0));
+        if(cursor.getCount() != 0) {
+            // 해당하는 걸 가져오는 부분
+            while(cursor.moveToNext()) {
+                list.add(cursor.getString(0));
+                Logger.e(LOG_TAG1, LOG_TAG2, "cursor : " + cursor.getString(0));
+            }
+        }
+        // 해당날짜에 사진이 없는 경우
+        else {
+            // "none" 이라는 String을 넘긴다
+            // 이렇게 하면 get(0)은 "none"이 되기 때문에
+            list.add("none");
         }
 
         //다 썼으니 닫아줌

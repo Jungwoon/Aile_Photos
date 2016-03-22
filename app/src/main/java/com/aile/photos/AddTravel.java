@@ -1,6 +1,8 @@
 package com.aile.photos;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +41,9 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
     String editDest; // 바꿔야 할 이름(쿼리에 조건절로 사용하기 위함)
     String editStart;
     String editEnd;
+
+    int tempStartDate = 0;
+    int tempEndDate = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,19 +116,46 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                 Logger.e(LOG_TAG1, LOG_TAG2, "dest : " + dest);
                 Logger.e(LOG_TAG1, LOG_TAG2, "start_date : " + start_date);
                 Logger.e(LOG_TAG1, LOG_TAG2, "end_date : " + end_date);
+                Logger.e(LOG_TAG1, LOG_TAG2, "tempStartDate : " + tempStartDate);
+                Logger.e(LOG_TAG1, LOG_TAG2, "tempEndDate : " + tempStartDate);
 
                 if(!dest.equals("") && !start_date.equals("") && !end_date.equals("")) {
                     // 새로운 여행 추가때의 로직
                     if(status.equals("new")) {
-                        insertDB(dest, start_date, end_date);
-                        Toast.makeText(this, "여행이 추가 되었습니다", Toast.LENGTH_LONG).show();
-                        finish();
+                        if(tempStartDate <= tempEndDate) {
+                            if(!checkDB(dest)) {
+                                insertDB(dest, start_date, end_date);
+                                Toast.makeText(this, "여행이 추가 되었습니다", Toast.LENGTH_LONG).show();
+
+                                Intent i = new Intent();
+                                i.putExtra("COMPLETE_DEST", dest);
+                                setResult(Activity.RESULT_OK, i);
+
+                                finish();
+                            }
+                            else {
+                                Toast.makeText(this, "여행지가 중복됩니다.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        else {
+                            Toast.makeText(this, "시작일이 종료일보다 큽니다", Toast.LENGTH_LONG).show();
+                        }
                     }
                     // 기존 여행 수정때의 로직
                     else {
-                        updateDB(dest, start_date, end_date);
-                        Toast.makeText(this, "여행이 수정 되었습니다", Toast.LENGTH_LONG).show();
-                        finish();
+                        if(tempStartDate <= tempEndDate) {
+                            if(!checkDB(dest)) {
+                                updateDB(dest, start_date, end_date);
+                                Toast.makeText(this, "여행이 수정 되었습니다", Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                            else {
+                                Toast.makeText(this, "여행지가 중복됩니다.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        else {
+                            Toast.makeText(this, "시작일이 종료일보다 큽니다", Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
                 else {
@@ -154,16 +186,15 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
             strMonth = "0" + (monthOfYear + 1);
         }
 
-//        String date = "You picked the following date: "+strYear + "-" + strMonth + "-" + strDay;
-//        Toast.makeText(this, date, Toast.LENGTH_LONG).show();
         tempDate = strYear + "-" + strMonth + "-" + strDay;
 
         if(depart) {
             mDepartDate.setText(tempDate);
-
+            tempStartDate = Integer.parseInt(strYear+strMonth+strDay);
         }
         else if(arrive) {
             mArriveDate.setText(tempDate);
+            tempEndDate = Integer.parseInt(strYear+strMonth+strDay);
         }
 
         depart = false;
@@ -191,7 +222,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
             //다 썼으니 닫아줌
             mHelper.close();
         }
-        catch(Exception e) { ; }
+        catch(Exception e) { e.printStackTrace(); }
     }
 
     public void updateDB(String dest, String start_date, String end_date) {
@@ -213,7 +244,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
             //다 썼으니 닫아줌
             mHelper.close();
         }
-        catch(Exception e) { ; }
+        catch(Exception e) { e.printStackTrace(); }
     }
 
     public void deleteDB() {
@@ -235,7 +266,39 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
             //다 썼으니 닫아줌
             mHelper.close();
         }
-        catch(Exception e) { ; }
+        catch(Exception e) { e.printStackTrace(); }
+    }
+
+    public boolean checkDB(String dest) {
+        boolean chkFlag = false;
+
+        try {
+            mHelper = new DBHelper(getApplicationContext());
+
+            //SQLite에 쓸 수 있게 만듦
+            SQLiteDatabase db = mHelper.getReadableDatabase();
+
+            String query = String.format("SELECT dest FROM %s;", Common.TRAVEL_TABLE);
+            Cursor cursor = db.rawQuery(query, null);
+            cursor.moveToFirst();
+
+            // 해당하는 걸 가져오는 부분
+            while(cursor.moveToNext()) {
+                if(dest.equals(cursor.getString(0))) {
+                    chkFlag = true;
+                }
+            }
+
+            //쿼리 실행
+            db.execSQL(query);
+
+            //다 썼으니 닫아줌
+            mHelper.close();
+        }
+        catch(Exception e) { e.printStackTrace(); }
+
+        // 중복된게 있으면 true 아니면 false
+        return chkFlag;
     }
 
     public void showDatePicker() {

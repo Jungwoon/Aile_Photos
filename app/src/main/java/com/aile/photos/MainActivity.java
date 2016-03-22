@@ -1,5 +1,6 @@
 package com.aile.photos;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.CursorLoader;
@@ -57,8 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
         // 만약 설치하고 맨 처음이라면 사진목록을 업데이트 시켜준다.
         if(!prefsDefault.getBoolean(Common.PREF_INIT, false)) {
+            Logger.e(LOG_TAG1, LOG_TAG2, "PREF_INIT");
             LoadingImageProgress task = new LoadingImageProgress();
             task.execute();
+
+            // 한번 호출 했으니 PREF_INIT의 값을 true로 바꿔준다.
+            prefsDefault.edit().putBoolean(Common.PREF_INIT, true).commit();
         }
 
         // 선언해주는 부분
@@ -96,20 +101,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getBaseContext(), AddTravel.class);
-                i.putExtra("status","new");
-                startActivity(i);
+                i.putExtra("status", "new");
+                startActivityForResult(i, 0);
             }
         });
+
+        // 마지막에 열었던 여행의 리스트를 열어주는 부분
+        String selectedDest = prefsDefault.getString(Common.PREF_LATEST, "");
+        setupViewPager(viewPager, selectedDest);
     }
 
     // Setting 해주는 부분을 이쪽으로 옮겨야 함
     public void onResume() {
         super.onResume();
         setupDrawerContent(); // Drawer 추가하는 부분
-
-        // 마지막에 열었던 여행의 리스트를 열어주는 부분
-        String selectedDest = prefsDefault.getString(Common.PREF_LATEST, "");
-        setupViewPager(viewPager, selectedDest);
     }
 
     @Override
@@ -136,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager, String destination) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Adapter adapter = new Adapter(getSupportFragmentManager());
+
+        Logger.e(LOG_TAG1, LOG_TAG2, "destination : " + destination);
 
         // adapter의 갱신을 위한 부분
 //        adapter.notifyDataSetChanged();
@@ -214,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // 2015-09-07 와 같은 형태로 만들어준다.
                     String date = cal.get(Calendar.YEAR) + "-" + month + "-" + day;
-                    Logger.e(LOG_TAG1, LOG_TAG2, "test date : " + date);
+                    Logger.e(LOG_TAG1, LOG_TAG2, "TEST DATE : " + date);
 
                     /**
                      * Adapter에 날짜 하나씩 추가해주는 부분
@@ -264,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String item = (String) listView.getItemAtPosition(position);
-                Toast.makeText(MainActivity.this, item, Toast.LENGTH_LONG).show();
+//                Toast.makeText(MainActivity.this, item, Toast.LENGTH_LONG).show();
                 setupViewPager(viewPager, item);
 
                 // 마지막으로 열어본 부분 갱신해주는 부분
@@ -277,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 String item = (String) listView.getItemAtPosition(position);
-                Toast.makeText(MainActivity.this, item + " LongClick!!", Toast.LENGTH_LONG).show();
+//                Toast.makeText(MainActivity.this, item + " LongClick!!", Toast.LENGTH_LONG).show();
                 editTravel(item);
 
                 return false;
@@ -357,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
             deleteTable(); // 기존의 테이블 내용을 지우고
 
             asyncDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            asyncDialog.setMessage("Image Updating...");
+            asyncDialog.setMessage("Images Updating...");
             asyncDialog.setMax(imgList.size()); // ProgressBar의 최대 숫자를 지정
 
             // show dialog
@@ -424,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             asyncDialog.dismiss();
 
-            Toast.makeText(MainActivity.this, "Loading Complete", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Images Update Complete", Toast.LENGTH_SHORT).show();
         }
     } // End of AsyncTask
 
@@ -524,5 +531,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return imgList;
+    }
+
+    // 여행을 등록하면 등록한 여행이 바로 처리되는 부분
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // 원격지에서 데이터를 받아 올 수 있다.
+        if(resultCode == Activity.RESULT_OK){
+            try {
+                String dest = data.getStringExtra("COMPLETE_DEST");
+                Logger.e(LOG_TAG1, LOG_TAG2, "return dest : " + dest);
+                Thread.sleep(200);
+
+                setupViewPager(viewPager, dest);
+
+            }
+            catch(Exception e) { ; }
+        }
     }
 }
