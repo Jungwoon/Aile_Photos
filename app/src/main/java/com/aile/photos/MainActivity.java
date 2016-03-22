@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         Adapter adapter = new Adapter(getSupportFragmentManager());
 
         Logger.e(LOG_TAG1, LOG_TAG2, "destination : " + destination);
+        toolbar.setTitle(destination);
 
         // adapter의 갱신을 위한 부분
 //        adapter.notifyDataSetChanged();
