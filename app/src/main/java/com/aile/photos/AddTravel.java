@@ -70,10 +70,10 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
         status = i.getStringExtra("status");
 
         if(status.equals("new")) {
-            mBtnAdd.setText("ADD");
+            mBtnAdd.setText(R.string.btn_add);
         }
         else {
-            mBtnAdd.setText("EDIT");
+            mBtnAdd.setText(R.string.btn_edit);
             mBtnDel.setVisibility(View.VISIBLE);
 
             editDest = i.getStringExtra("dest");
@@ -125,7 +125,7 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                         if(tempStartDate <= tempEndDate) {
                             if(!checkDB(dest)) {
                                 insertDB(dest, start_date, end_date);
-                                Toast.makeText(this, "여행이 추가 되었습니다", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, R.string.travel_add, Toast.LENGTH_LONG).show();
 
                                 Intent i = new Intent();
                                 i.putExtra("COMPLETE_DEST", dest);
@@ -134,11 +134,11 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                                 finish();
                             }
                             else {
-                                Toast.makeText(this, "여행지가 중복됩니다.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, R.string.chk_duplicates, Toast.LENGTH_LONG).show();
                             }
                         }
                         else {
-                            Toast.makeText(this, "시작일이 종료일보다 큽니다", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.chk_dates, Toast.LENGTH_LONG).show();
                         }
                     }
                     // 기존 여행 수정때의 로직
@@ -146,27 +146,27 @@ public class AddTravel extends AppCompatActivity implements View.OnClickListener
                         if(tempStartDate <= tempEndDate) {
                             if(!checkDB(dest)) {
                                 updateDB(dest, start_date, end_date);
-                                Toast.makeText(this, "여행이 수정 되었습니다", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, R.string.travel_edit, Toast.LENGTH_LONG).show();
                                 finish();
                             }
                             else {
-                                Toast.makeText(this, "여행지가 중복됩니다.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, R.string.chk_duplicates, Toast.LENGTH_LONG).show();
                             }
                         }
                         else {
-                            Toast.makeText(this, "시작일이 종료일보다 큽니다", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.chk_dates, Toast.LENGTH_LONG).show();
                         }
                     }
                 }
                 else {
-                    Toast.makeText(this, "모든 항목을 채워야 합니다.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.chk_fill, Toast.LENGTH_LONG).show();
                 }
 
                 break;
 
             case R.id.btnDel :
                 deleteDB();
-                Toast.makeText(this, "여행이 제거 되었습니다.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.travel_del, Toast.LENGTH_LONG).show();
                 finish();
 
                 break;

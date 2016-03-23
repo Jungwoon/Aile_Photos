@@ -16,7 +16,7 @@
         android:id="@+id/mainAile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="aile"
+        android:text="@string/headline"
         android:textSize="30dp"
         android:textColor="#fff"
         android:gravity="center"
@@ -30,7 +30,7 @@
         android:layout_below="@id/mainAile"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="2dp"
-        android:text="align your travels photos"
+        android:text="@string/sub_headline"
         android:textColor="#fff"/>
 
 </RelativeLayout>

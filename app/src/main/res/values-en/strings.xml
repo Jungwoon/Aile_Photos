@@ -8,8 +8,8 @@
     <string name="input_dest">Input Your Destination</string>
     <string name="input_start">Input Your Depart Date</string>
     <string name="input_end">Input Your Arrive Date</string>
-    <string name="add_caption_dest">Destination</string>
     <string name="add_caption_date">Select Dates</string>
+    <string name="add_caption_dest">Destination</string>
     <string name="headline">aile</string>
     <string name="sub_headline">Set Your New Travel</string>
     <string name="no_travels">There is no registered travels</string>

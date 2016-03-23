@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Photos</string>
+    <string name="add_caption_date">날짜를 선택해주세요</string>
+    <string name="add_caption_dest">목적지</string>
+    <string name="btn_add">추가</string>
+    <string name="btn_del">삭제</string>
+    <string name="btn_edit">수정</string>
+    <string name="chk_dates">출발일이 도착일보다 큽니다</string>
+    <string name="chk_duplicates">해당 목적지는 이미 존재합니다</string>
+    <string name="chk_fill">모든 항목을 채워주세요</string>
+    <string name="headline">aile</string>
+    <string name="input_dest">목적지를 입력해주세요</string>
+    <string name="input_end">도착일을 입력해주세요</string>
+    <string name="input_start">출발일을 입력해주세요</string>
+    <string name="no_travels">등록된 여행이 없습니다</string>
+    <string name="pictures_loading">사진 로딩중...</string>
+    <string name="pictures_loading_complete">사진 로딩 완료</string>
+    <string name="sub_headline">Set Your New Travel</string>
+    <string name="travel_add">추가 되었습니다</string>
+    <string name="travel_del">삭제 되었습니다</string>
+    <string name="travel_edit">수정 되었습니다</string>
+    <string name="date_depart">출발일</string>
+    <string name="date_arrive">귀국일</string>
+</resources>

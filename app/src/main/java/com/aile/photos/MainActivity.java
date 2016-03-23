@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
             } catch(Exception e){}
         }
         else {
-            Toast.makeText(this, "등록된 여행이 없습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_travels, Toast.LENGTH_SHORT).show();
         }
 
         // 위에서 추가한 날짜를 viewPager에 설정해야한다
@@ -432,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             asyncDialog.dismiss();
 
-            Toast.makeText(MainActivity.this, "Images Update Complete", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.pictures_loading_complete, Toast.LENGTH_SHORT).show();
         }
     } // End of AsyncTask
 

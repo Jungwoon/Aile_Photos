@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Aile Photos"
+                android:text="@string/headline"
                 android:textSize="20dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
