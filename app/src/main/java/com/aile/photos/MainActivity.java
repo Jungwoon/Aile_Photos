@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
     // Progress Dialog 생성하는 부분
     private class LoadingImageProgress extends AsyncTask<Integer, Integer, Void> {
         ProgressDialog asyncDialog = new ProgressDialog(MainActivity.this);
-        ArrayList<String> imgList = countSetDatePiectures();
+        ArrayList<String> imgList = countSetDatePictures();
 
         @Override
         // 작업시작, ProgressDialog 객체를 생성하고 시작합니다
@@ -497,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
         mHelper.close();
     }
 
-    private ArrayList<String> countSetDatePiectures() {
+    private ArrayList<String> countSetDatePictures() {
         ArrayList<String> imgList = new ArrayList<>();
 
         try {
